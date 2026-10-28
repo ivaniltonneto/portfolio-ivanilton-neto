@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+import TopBar from '../components/TopBar.astro';
+import Masthead from '../components/Masthead.astro';
+import Trajectory from '../components/Trajectory.astro';
+import Cases from '../components/Cases.astro';
+import Method from '../components/Method.astro';
+import EvidenceMatrix from '../components/EvidenceMatrix.astro';
+import Education from '../components/Education.astro';
+import Contact from '../components/Contact.astro';
+---
+
+<Base>
+  <TopBar />
+  <main id="conteudo" class="page">
+    <Masthead />
+    <Trajectory />
+    <Cases />
+    <Method />
+    <EvidenceMatrix />
+    <Education />
+  </main>
+  <div class="page">
+    <Contact />
+  </div>
+</Base>
+
+<script>
+  import '../scripts/lens';
+</script>

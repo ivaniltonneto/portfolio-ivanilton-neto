@@ -1,0 +1,148 @@
+---
+import { degree, courses, languages } from '../data/profile';
+---
+
+<section class="section" id="formacao" aria-labelledby="formacao-t">
+  <header class="section__head">
+    <h2 id="formacao-t" class="section__title">Formação</h2>
+    <p class="section__standfirst">Graduação em andamento e, separados dela, os cursos livres. Os marcados como certificado tiveram o documento conferido.</p>
+  </header>
+
+  <div class="section__body edu">
+    <article class="edu__degree">
+      <h3 class="edu__h">Formação acadêmica</h3>
+      <p class="edu__title">{degree.title}</p>
+      <p class="edu__inst">{degree.institution}</p>
+      <p class="edu__period">
+        <span>{degree.period}</span>
+        <span class="edu__status">{degree.status}</span>
+      </p>
+      <p class="edu__sub-h">Disciplinas</p>
+      <ul class="edu__subjects" role="list">
+        {degree.subjects.map((s) => <li>{s}</li>)}
+      </ul>
+    </article>
+
+    <div class="edu__side">
+      <article>
+        <h3 class="edu__h">Cursos livres</h3>
+        <ul class="edu__courses edu__courses--rich" role="list">
+          {courses.map((c) => (
+            <li>
+              <span class="edu__cname">
+                {c.name}
+                {c.issuer && <span class="edu__issuer">{c.issuer}</span>}
+              </span>
+              <span class="edu__detail">
+                {[c.hours, c.date].filter(Boolean).join(', ')}
+                {c.certified && <span class="edu__cert">Certificado</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </article>
+      <article>
+        <h3 class="edu__h">Idiomas</h3>
+        <ul class="edu__courses" role="list">
+          {languages.map((l) => (
+            <li>
+              <span>{l.name}</span>
+              <span class="edu__detail">{l.level}</span>
+            </li>
+          ))}
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .edu {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--space-l) var(--gutter);
+  }
+  .edu__side {
+    display: grid;
+    gap: var(--space-l);
+    align-content: start;
+  }
+  .edu__h {
+    font-size: var(--step--1);
+    font-weight: 650;
+    color: var(--ink-soft);
+    padding-bottom: var(--space-2xs);
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  .edu__title {
+    margin-top: var(--space-s);
+    font-size: var(--step-2);
+    font-stretch: var(--semi-wide);
+    font-weight: 720;
+    line-height: 1.12;
+  }
+  .edu__inst {
+    margin-top: var(--space-2xs);
+  }
+  .edu__period {
+    display: flex;
+    gap: var(--space-s);
+    align-items: baseline;
+    margin-top: var(--space-2xs);
+    font-variant-numeric: tabular-nums;
+  }
+  .edu__status {
+    font-size: var(--step--1);
+    padding: 0 0.5em;
+    border: 1.5px solid currentColor;
+  }
+  .edu__sub-h {
+    margin-top: var(--space-m);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .edu__subjects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.1rem;
+    margin-top: var(--space-2xs);
+  }
+  .edu__courses li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-s);
+    padding-block: 0.55rem;
+    border-bottom: var(--rule-w) solid var(--rule);
+  }
+  .edu__detail {
+    color: var(--ink-soft);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .edu__courses--rich li {
+    align-items: baseline;
+  }
+  .edu__cname {
+    display: flex;
+    flex-direction: column;
+  }
+  .edu__issuer {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .edu__courses--rich .edu__detail {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-size: var(--step--1);
+  }
+  .edu__cert {
+    color: var(--layer-arq);
+    font-weight: 600;
+  }
+  @media (max-width: 47.99rem) {
+    .edu {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,537 @@
+---
+import { method } from '../data/profile';
+
+type Node = { kind: string; name: string; desc?: string; variant?: 'person' | 'system' | 'external' | 'part' };
+const N = (kind: string, name: string, desc?: string, variant: Node['variant'] = 'part'): Node => ({ kind, name, desc, variant });
+
+const diagrams: Record<string, { cols: (Node | Node[] | { arrow: string })[]; note?: string }> = {
+  contexto: {
+    cols: [
+      [N('Pessoa', 'Administrador', undefined, 'person'), N('Pessoa', 'Supervisor', undefined, 'person'), N('Pessoa', 'Prestador de serviço', undefined, 'person')],
+      { arrow: 'usam' },
+      N('Sistema', 'LogixSphere', 'Planejamento, operação diária, rotas e financeiro da BA Express', 'system'),
+      { arrow: 'depende de' },
+      [N('Externo', 'Object storage', 'Upload de arquivos por URL assinada', 'external'), N('Externo', 'E-mail', 'Redefinição de senha', 'external')],
+    ],
+  },
+  conteineres: {
+    cols: [
+      N('Pessoa', 'Navegador', undefined, 'person'),
+      { arrow: 'HTTPS' },
+      N('Contêiner', 'Front‑end', 'Next.js 15, App Router, rotas públicas e privadas'),
+      { arrow: 'REST e socket' },
+      N('Contêiner', 'API', 'Node.js e Express 5, com Socket.IO para o chat', 'system'),
+      { arrow: 'SQL e filas' },
+      [N('Dados', 'PostgreSQL', 'Multi-tenant por empresa, 62 tabelas'), N('Dados', 'Redis', 'Cache, chat e filas')],
+    ],
+    note: 'Ao lado da API, um microsserviço de ingestão recebe planilhas. Tudo roda em VMs com PM2, publicado pela esteira build-once.',
+  },
+  componentes: {
+    cols: [
+      N('Componente', 'Routers', '/auth, /api/v1 e a superfície /bff legada'),
+      { arrow: 'protege' },
+      N('Componente', 'Middlewares', 'JWT, validação com Zod, resposta em camelCase'),
+      { arrow: 'chama' },
+      [N('Componente', 'Use cases', 'Criar e transicionar operações, folgas, receita', 'system'), N('Componente', 'Regras de domínio', 'Transição de status, conflito de veículo e de fornecedor')],
+      { arrow: 'grava' },
+      N('Componente', 'Repositories', 'SQL explícito sobre PostgreSQL'),
+    ],
+  },
+};
+
+const codeSample = `# Servidor, por ambiente
+<deploy_base>/
+  releases/
+    <sha>/       artefato imutável: build, dependências
+                 de produção, release.json e checksum
+  current    ->  releases/<sha>            versão no ar
+  previous   ->  releases/<sha-anterior>   alvo do rollback
+  shared/        segredos e config, fora do artefato
+
+# Health check
+GET /health  ->  JSON com versão e SHA do release`;
+---
+
+<section class="section" id="metodo" aria-labelledby="metodo-t">
+  <header class="section__head">
+    <h2 id="metodo-t" class="section__title">Método</h2>
+    <p class="section__standfirst">{method.intro}</p>
+  </header>
+
+  <div class="section__body method">
+    <h3 class="records__title">Registros de projetos reais</h3>
+    <ol class="records" role="list">
+      {method.records.map((r) => (
+        <li class="record">
+          <p class="record__kind">{r.kind}</p>
+          <h4 class="record__name">{r.title}</h4>
+          <p class="record__where">{r.where}</p>
+          <p class="record__sum">{r.summary}</p>
+        </li>
+      ))}
+    </ol>
+
+    <p class="method__why">{method.why}</p>
+
+    <div class="c4" data-tabs>
+      <div class="c4__tabs" role="tablist" aria-label="Níveis do modelo C4" hidden data-tablist>
+        {method.c4.map((lvl, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${lvl.id}`}
+            aria-controls={`panel-${lvl.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            <span class="c4__lvl">Nível {i + 1}</span>
+            {lvl.name}
+          </button>
+        ))}
+      </div>
+
+      {method.c4.map((lvl, i) => {
+        const d = diagrams[lvl.id];
+        return (
+          <section class="c4__panel" role="tabpanel" id={`panel-${lvl.id}`} aria-labelledby={`tab-${lvl.id}`} data-panel>
+            <h3 class="c4__heading">Nível {i + 1}: {lvl.name}</h3>
+            <p class="c4__caption">{lvl.caption}</p>
+            {d ? (
+              <div class="c4__diagram">
+                {d.cols.map((col) =>
+                  'arrow' in col ? (
+                    <div class="c4__arrow"><span>{col.arrow}</span></div>
+                  ) : (
+                    <div class="c4__col">
+                      {(Array.isArray(col) ? col : [col]).map((n) => (
+                        <div class={`c4__node c4__node--${n.variant}`}>
+                          <span class="c4__kind">{n.kind}</span>
+                          <span class="c4__name">{n.name}</span>
+                          {n.desc && <span class="c4__desc">{n.desc}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  ),
+                )}
+              </div>
+            ) : (
+              <pre class="c4__code"><code>{codeSample}</code></pre>
+            )}
+            {d?.note && <p class="c4__note">{d.note}</p>}
+          </section>
+        );
+      })}
+    </div>
+
+    <h3 class="adr__title">{method.adrsTitle}</h3>
+    <p class="adr__source">{method.adrsSource}</p>
+    <ol class="adrs" role="list">
+      {method.adrs.map((a) => (
+        <li>
+          <details class="adr">
+            <summary>
+              <code class="adr__id">{a.id}</code>
+              <span class="adr__name">{a.title}</span>
+              <span class="adr__status">Aceita</span>
+            </summary>
+            <dl class="adr__body">
+              <div><dt>Contexto</dt><dd>{a.context}</dd></div>
+              <div><dt>Decisão</dt><dd>{a.decision}</dd></div>
+              <div><dt>Consequências</dt><dd>{a.consequences}</dd></div>
+            </dl>
+          </details>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((root) => {
+    const list = root.querySelector<HTMLElement>('[data-tablist]')!;
+    const tabs = [...list.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+    list.hidden = false;
+    root.classList.add('is-tabbed');
+
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, j) => {
+        const on = i === j;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        panels[j].hidden = !on;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(i));
+      t.addEventListener('keydown', (e) => {
+        const k = e.key;
+        let n = -1;
+        if (k === 'ArrowRight') n = (i + 1) % tabs.length;
+        if (k === 'ArrowLeft') n = (i - 1 + tabs.length) % tabs.length;
+        if (k === 'Home') n = 0;
+        if (k === 'End') n = tabs.length - 1;
+        if (n >= 0) {
+          e.preventDefault();
+          select(n, true);
+        }
+      });
+    });
+    select(0);
+  });
+</script>
+
+<style>
+  .method__why {
+    max-width: var(--measure);
+    font-size: var(--step-1);
+    line-height: 1.45;
+    margin-top: var(--space-xl);
+  }
+  .records__title {
+    font-size: var(--step-2);
+    font-stretch: var(--semi-wide);
+    font-weight: 720;
+  }
+  .records {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 var(--space-m);
+    margin-top: var(--space-s);
+    border-top: 2px solid var(--rule-strong);
+  }
+  .record {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    padding-top: var(--space-s);
+  }
+  .record__kind {
+    font-size: var(--step--1);
+    color: var(--layer-arq);
+    font-weight: 650;
+  }
+  .record__name {
+    font-size: var(--step-1);
+    font-stretch: var(--semi-wide);
+    font-weight: 720;
+    line-height: 1.15;
+  }
+  .record__where {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .record__sum {
+    margin-top: var(--space-2xs);
+    font-size: var(--step--1);
+    line-height: 1.5;
+  }
+  @media (max-width: 59.99rem) {
+    .records {
+      grid-template-columns: 1fr;
+    }
+    .record + .record {
+      margin-top: var(--space-s);
+      border-top: var(--rule-w) solid var(--rule);
+    }
+  }
+
+  .c4 {
+    margin-top: var(--space-l);
+  }
+  .c4__tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: var(--rule-w) solid var(--rule-strong);
+  }
+  .c4__tabs[hidden] {
+    display: none;
+  }
+  .c4__tabs button {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: var(--space-xs) var(--space-s);
+    border: 0;
+    border-inline-start: var(--rule-w) solid var(--rule-strong);
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    font-stretch: var(--semi-wide);
+    text-align: left;
+  }
+  .c4__tabs button:first-child {
+    border-inline-start: 0;
+  }
+  .c4__tabs button:hover {
+    background: var(--paper-sunk);
+  }
+  .c4__tabs button[aria-selected='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .c4__lvl {
+    font-size: var(--step--1);
+    font-weight: 400;
+    font-stretch: var(--normal);
+    opacity: 0.75;
+  }
+
+  .c4__panel {
+    padding-block: var(--space-m) 0;
+  }
+  .c4__panel + .c4__panel {
+    margin-top: var(--space-l);
+  }
+  .is-tabbed .c4__panel + .c4__panel {
+    margin-top: 0;
+  }
+  .c4__heading {
+    font-size: var(--step-1);
+    font-stretch: var(--semi-wide);
+  }
+  .is-tabbed .c4__heading {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  .c4__caption {
+    color: var(--ink-soft);
+    max-width: 60ch;
+  }
+  .c4__diagram {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-top: var(--space-m);
+    padding: var(--space-m) var(--space-s);
+    background:
+      radial-gradient(circle, color-mix(in srgb, var(--ink) 16%, transparent) 1px, transparent 1.2px) 0 0 / 18px 18px,
+      var(--paper-sunk);
+    border: var(--rule-w) solid var(--rule);
+  }
+  .c4__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .c4__node {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: var(--space-xs) 0.7rem;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    font-size: 0.8125rem;
+    line-height: 1.35;
+  }
+  .c4__node--person {
+    border-top-width: 5px;
+  }
+  .c4__node--system {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .c4__node--external {
+    border-style: dashed;
+  }
+  .c4__kind {
+    font-size: 0.8em;
+    opacity: 0.75;
+  }
+  .c4__name {
+    font-weight: 750;
+    font-size: 0.975rem;
+    font-stretch: var(--normal);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    hyphens: manual;
+  }
+  .c4__desc {
+    opacity: 0.85;
+  }
+  .c4__arrow {
+    flex: 0 0 4.75rem;
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-self: stretch;
+  }
+  .c4__arrow::before {
+    content: '';
+    position: absolute;
+    left: 0.4rem;
+    right: 0.55rem;
+    top: 50%;
+    border-top: 1.5px solid var(--ink);
+  }
+  .c4__arrow::after {
+    content: '';
+    position: absolute;
+    right: 0.4rem;
+    top: calc(50% - 5px);
+    border: 5px solid transparent;
+    border-left: 8px solid var(--ink);
+    border-right: 0;
+    transform: translateY(0.75px);
+  }
+  .c4__arrow span {
+    position: relative;
+    top: -0.9rem;
+    font-size: var(--step--1);
+    background: var(--paper-sunk);
+    padding-inline: 0.3em;
+  }
+  .c4__note {
+    margin-top: var(--space-xs);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .c4__code {
+    margin-top: var(--space-m);
+    padding: var(--space-m);
+    background: var(--ink);
+    color: var(--paper);
+    overflow-x: auto;
+    font-size: var(--step--1);
+    line-height: 1.55;
+    tab-size: 2;
+  }
+  .c4__code code {
+    font-size: 1em;
+  }
+
+  @media (max-width: 47.99rem) {
+    .c4__tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .c4__tabs button:nth-child(3) {
+      border-inline-start: 0;
+    }
+    .c4__tabs button:nth-child(n + 3) {
+      border-top: var(--rule-w) solid var(--rule-strong);
+    }
+    .c4__diagram {
+      flex-direction: column;
+      align-items: stretch;
+      padding: var(--space-s);
+    }
+    .c4__arrow {
+      flex-basis: 3.25rem;
+    }
+    .c4__arrow::before {
+      left: 50%;
+      right: auto;
+      top: 0.3rem;
+      bottom: 0.6rem;
+      border-top: 0;
+      border-left: 1.5px solid var(--ink);
+    }
+    .c4__arrow::after {
+      right: auto;
+      left: calc(50% - 5px);
+      top: auto;
+      bottom: 0.25rem;
+      border: 5px solid transparent;
+      border-top: 8px solid var(--ink);
+      border-bottom: 0;
+      transform: translateX(0.75px);
+    }
+    .c4__arrow span {
+      top: 0;
+      left: 1.6rem;
+    }
+  }
+
+  .adr__title {
+    margin-top: var(--space-xl);
+    font-size: var(--step-2);
+    font-stretch: var(--semi-wide);
+    font-weight: 720;
+  }
+  .adr__source {
+    margin-top: var(--space-2xs);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .adrs {
+    margin-top: var(--space-s);
+    border-top: 2px solid var(--rule-strong);
+  }
+  .adrs li {
+    border-bottom: var(--rule-w) solid var(--rule);
+  }
+  .adr summary {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+    gap: var(--space-s);
+    align-items: baseline;
+    padding-block: var(--space-s);
+    cursor: pointer;
+    list-style: none;
+  }
+  .adr summary::-webkit-details-marker {
+    display: none;
+  }
+  .adr summary:hover .adr__name {
+    text-decoration: underline;
+  }
+  .adr__name {
+    font-weight: 650;
+  }
+  .adr__status {
+    font-size: var(--step--1);
+    color: var(--layer-arq);
+    display: inline-flex;
+    gap: 0.5em;
+    align-items: baseline;
+  }
+  .adr__status::after {
+    content: '+';
+    font-weight: 400;
+    color: var(--ink);
+    font-size: var(--step-1);
+    line-height: 1;
+    width: 1ch;
+  }
+  .adr[open] .adr__status::after {
+    content: '−';
+  }
+  .adr__body {
+    display: grid;
+    gap: var(--space-2xs);
+    padding: 0 0 var(--space-m) 4rem;
+    margin-inline-start: var(--space-s);
+    max-width: calc(var(--measure) + 7rem);
+  }
+  .adr__body div {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    gap: var(--space-s);
+  }
+  .adr__body dt {
+    color: var(--ink-soft);
+  }
+  @media (max-width: 40rem) {
+    .adr summary {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .adr__id {
+      grid-column: 1 / -1;
+    }
+    .adr__body {
+      padding-inline-start: 0;
+      margin-inline-start: 0;
+    }
+    .adr__body div {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+</style>

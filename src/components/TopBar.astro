@@ -1,0 +1,154 @@
+---
+import { layers, person } from '../data/profile';
+
+const nav = [
+  { href: '#trajetoria', label: 'Trajetória' },
+  { href: '#casos', label: 'Casos' },
+  { href: '#metodo', label: 'Método' },
+  { href: '#competencias', label: 'Competências' },
+  { href: '#formacao', label: 'Formação' },
+  { href: '#contato', label: 'Contato' },
+];
+// Topo da pilha primeiro, como no desenho
+const lensOrder = [...layers].reverse();
+---
+
+<header class="topbar">
+  <div class="page topbar__inner">
+    <a class="topbar__name" href="#topo">{person.name}</a>
+
+    <nav class="topbar__nav" aria-label="Seções">
+      <ul role="list">
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} data-spy={n.href.slice(1)}>{n.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="lens" role="group" aria-labelledby="lens-label" data-lens-control hidden>
+      <span id="lens-label" class="lens__label">Ver camada</span>
+      <button type="button" class="lens__btn" data-lens-value="" aria-pressed="true">Todas</button>
+      {lensOrder.map((l) => (
+        <button type="button" class={`lens__btn l-${l.id}`} data-lens-value={l.id} aria-pressed="false">
+          <span class="slab-mark" aria-hidden="true"></span>
+          {l.short}
+        </button>
+      ))}
+    </div>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-lens-status></p>
+</header>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    backdrop-filter: saturate(1.2) blur(6px);
+    border-bottom: var(--rule-w) solid var(--rule);
+  }
+  .topbar__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    min-height: 3.5rem;
+  }
+  .topbar__name {
+    font-weight: 750;
+    font-stretch: var(--semi-wide);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .topbar__nav {
+    margin-inline-start: auto;
+  }
+  .topbar__nav ul {
+    display: flex;
+    gap: var(--space-s);
+    font-size: var(--step--1);
+  }
+  .topbar__nav a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    padding-block: 0.25rem;
+    border-bottom: 2px solid transparent;
+  }
+  .topbar__nav a:hover,
+  .topbar__nav a[aria-current='true'] {
+    color: var(--ink);
+    border-bottom-color: currentColor;
+  }
+
+  .lens {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-size: var(--step--1);
+    border: var(--rule-w) solid var(--rule-strong);
+  }
+  .lens[hidden] {
+    display: none;
+  }
+  .lens__label {
+    padding-inline: 0.6rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .lens__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    border: 0;
+    border-inline-start: var(--rule-w) solid var(--rule-strong);
+    background: transparent;
+    padding: 0.35rem 0.65rem;
+    cursor: pointer;
+    white-space: nowrap;
+    min-height: 2.25rem;
+  }
+  .lens__btn:hover {
+    background: var(--paper-sunk);
+  }
+  .lens__btn[aria-pressed='true'] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .lens__btn[aria-pressed='true'] .slab-mark {
+    border-color: var(--paper);
+  }
+
+  @media (max-width: 72rem) {
+    .topbar__nav {
+      display: none;
+    }
+    .lens {
+      margin-inline-start: auto;
+    }
+  }
+  @media (max-width: 40rem) {
+    .topbar__name {
+      display: none;
+    }
+    .topbar__inner {
+      justify-content: center;
+    }
+    .lens {
+      margin-inline: 0;
+      width: 100%;
+    }
+    .lens__label {
+      display: none;
+    }
+    .lens__btn {
+      flex: 1;
+      justify-content: center;
+      padding-inline: 0.4rem;
+    }
+    .lens__btn:first-of-type {
+      border-inline-start: 0;
+    }
+  }
+</style>

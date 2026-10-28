@@ -1,0 +1,191 @@
+---
+import type { CaseStudy } from '../data/profile';
+
+interface Props {
+  map: NonNullable<CaseStudy['map']>;
+  id: string;
+}
+const { map, id } = Astro.props;
+const all = [...map.zones, map.crosscut];
+---
+
+<figure class="cmap l-ia" data-cmap>
+  <div class="cmap__frame" role="group" aria-label="Mapa de responsabilidades documentadas">
+    <p class="cmap__boundary">{map.boundary}</p>
+    <div class="cmap__zones">
+      {map.zones.map((z) => (
+        <button type="button" class="cmap__zone" aria-pressed="false" aria-controls={`${id}-ev`} data-zone={z.id}>
+          <span class="cmap__zone-name">{z.name}</span>
+          <span class="cmap__items">{z.items.map((it) => <span>{it}</span>)}</span>
+          <span class="cmap__ev-inline">{z.evidence}</span>
+        </button>
+      ))}
+    </div>
+    <button type="button" class="cmap__zone cmap__cross" aria-pressed="false" aria-controls={`${id}-ev`} data-zone={map.crosscut.id}>
+      <span class="cmap__zone-name">{map.crosscut.name}</span>
+      <span class="cmap__items">{map.crosscut.items.map((it) => <span>{it}</span>)}</span>
+      <span class="cmap__ev-inline">{map.crosscut.evidence}</span>
+    </button>
+  </div>
+
+  <div class="cmap__panel" id={`${id}-ev`} aria-live="polite">
+    <p class="cmap__panel-hint" data-hint>Selecione uma área para ver a linha do currículo que a sustenta.</p>
+    {all.map((z) => (
+      <blockquote class="cmap__quote" data-ev={z.id} hidden>
+        <p>{z.evidence}</p>
+        <footer>Currículo, Tech Lead, área: {z.name.toLowerCase()}</footer>
+      </blockquote>
+    ))}
+  </div>
+
+  <figcaption class="cmap__cap">{map.caption}</figcaption>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-cmap]').forEach((root) => {
+    const zones = root.querySelectorAll<HTMLButtonElement>('[data-zone]');
+    const quotes = root.querySelectorAll<HTMLElement>('[data-ev]');
+    const hint = root.querySelector<HTMLElement>('[data-hint]');
+    zones.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.zone;
+        const wasOn = btn.getAttribute('aria-pressed') === 'true';
+        zones.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+        quotes.forEach((q) => (q.hidden = true));
+        if (!wasOn) {
+          btn.setAttribute('aria-pressed', 'true');
+          // Mesma evidência pode sustentar duas áreas; mostra a da área clicada
+          root.querySelector<HTMLElement>(`[data-ev="${id}"]`)!.hidden = false;
+        }
+        if (hint) hint.hidden = !wasOn;
+      });
+    });
+  });
+</script>
+
+<style>
+  .cmap {
+    margin: var(--space-l) 0 0;
+  }
+  .cmap__frame {
+    border: 1.5px dashed var(--ink);
+    padding: var(--space-m) var(--space-s) var(--space-s);
+    position: relative;
+  }
+  .cmap__boundary {
+    position: absolute;
+    top: -0.75em;
+    left: var(--space-s);
+    background: var(--paper);
+    padding-inline: 0.4em;
+    font-size: var(--step--1);
+    font-weight: 650;
+  }
+  .cmap__zones {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-xs);
+  }
+  .cmap__zone {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+    text-align: left;
+    background: var(--paper);
+    border: 1.5px solid var(--c);
+    padding: var(--space-xs) var(--space-xs) var(--space-s);
+    cursor: pointer;
+    min-height: 7.5rem;
+  }
+  .cmap__zone:hover {
+    background: color-mix(in srgb, var(--c-fill) 10%, var(--paper));
+  }
+  .cmap__zone[aria-pressed='true'] {
+    background: var(--c);
+    color: var(--paper);
+  }
+  .cmap__zone-name {
+    font-weight: 750;
+    font-stretch: var(--semi-wide);
+  }
+  .cmap__items {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--step--1);
+    line-height: 1.35;
+  }
+  .cmap__cross {
+    width: 100%;
+    min-height: 0;
+    margin-top: var(--space-xs);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2xs) var(--space-m);
+    border-color: var(--ink);
+    background: repeating-linear-gradient(-45deg, transparent 0 7px, color-mix(in srgb, var(--ink) 9%, transparent) 7px 8px), var(--paper);
+  }
+  .cmap__cross .cmap__items {
+    flex-direction: row;
+    gap: var(--space-m);
+  }
+  .cmap__cross[aria-pressed='true'] {
+    background: var(--ink);
+  }
+
+  .cmap__ev-inline {
+    display: none;
+  }
+  .cmap__panel {
+    min-height: 5.5rem;
+    padding: var(--space-s) 0;
+    border-bottom: var(--rule-w) solid var(--rule);
+  }
+  .cmap__panel-hint {
+    color: var(--ink-soft);
+    font-size: var(--step--1);
+  }
+  .cmap__quote {
+    border-inline-start: 3px solid var(--c);
+    padding-inline-start: var(--space-s);
+  }
+  .cmap__quote p {
+    font-size: var(--step-1);
+    line-height: 1.4;
+    max-width: 48ch;
+  }
+  .cmap__quote footer {
+    margin-top: var(--space-3xs);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .cmap__cap {
+    margin-top: var(--space-xs);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    max-width: 60ch;
+  }
+
+  /* Sem JavaScript: botões viram blocos estáticos com a evidência dentro */
+  :global(html:not(.js)) .cmap__zone {
+    cursor: default;
+  }
+  :global(html:not(.js)) .cmap__ev-inline {
+    display: block;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  :global(html:not(.js)) .cmap__panel {
+    display: none;
+  }
+
+  @media (max-width: 40rem) {
+    .cmap__zones {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cmap__zone {
+      min-height: 6rem;
+    }
+  }
+</style>

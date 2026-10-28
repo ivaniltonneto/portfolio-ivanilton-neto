@@ -1,0 +1,107 @@
+/*
+ * Tokens de design — fonte única de cor, tipo e espaço.
+ * Conceito: "corte transversal" de uma pilha de três camadas.
+ * Cada camada tem uma cor e essa cor só significa a camada.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Base: papel vegetal frio e tinta verde-grafite */
+  --paper: #eef0ec;
+  --paper-sunk: #e2e6e1;
+  --ink: #13201b;
+  --ink-soft: #4b5b54;
+  --rule: #c3cbc5;
+  --rule-strong: #13201b;
+
+  /* Camadas — tom para texto (contraste AA sobre --paper) e tom para preenchimento */
+  --layer-back: #8a5410;
+  --layer-back-fill: #c98a2e;
+  --layer-arq: #1e5b45;
+  --layer-arq-fill: #2f7a5d;
+  --layer-ia: #2a43c4;
+  --layer-ia-fill: #4a63e0;
+
+  --focus: #2a43c4;
+  --selection: #c9d3f7;
+
+  /* Tipo */
+  --font-sans: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  /* Escala modular 1.25 sobre 1.125rem (18px) */
+  --step--1: 0.875rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+  --step-3: clamp(1.875rem, 1.3rem + 2.2vw, 2.75rem);
+  --step-4: clamp(2.5rem, 1.4rem + 4.4vw, 4.75rem);
+  --step-5: clamp(3.25rem, 0.9rem + 9.6vw, 9.5rem);
+
+  --leading-tight: 0.92;
+  --leading-snug: 1.2;
+  --leading-body: 1.6;
+
+  /* Larguras do eixo wdth da Archivo */
+  --wide: 125%;
+  --semi-wide: 112%;
+  --normal: 100%;
+  --narrow: 82%;
+
+  /* Espaço */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: clamp(3rem, 2rem + 4vw, 6rem);
+  --space-2xl: clamp(4.5rem, 3rem + 6vw, 9rem);
+
+  /* Grid */
+  --page-max: 82.5rem;
+  --gutter: clamp(1rem, 0.4rem + 2.6vw, 3rem);
+  --measure: 66ch;
+
+  --rule-w: 1px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --paper: #121a17;
+    --paper-sunk: #1a2420;
+    --ink: #e1e8e3;
+    --ink-soft: #9cada5;
+    --rule: #2f3d37;
+    --rule-strong: #e1e8e3;
+    --layer-back: #e3a654;
+    --layer-back-fill: #c98a2e;
+    --layer-arq: #66c79c;
+    --layer-arq-fill: #3f9a74;
+    --layer-ia: #97a8ff;
+    --layer-ia-fill: #6077ee;
+    --focus: #97a8ff;
+    --selection: #2c3a6b;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #121a17;
+  --paper-sunk: #1a2420;
+  --ink: #e1e8e3;
+  --ink-soft: #9cada5;
+  --rule: #2f3d37;
+  --rule-strong: #e1e8e3;
+  --layer-back: #e3a654;
+  --layer-back-fill: #c98a2e;
+  --layer-arq: #66c79c;
+  --layer-arq-fill: #3f9a74;
+  --layer-ia: #97a8ff;
+  --layer-ia-fill: #6077ee;
+  --focus: #97a8ff;
+  --selection: #2c3a6b;
+}

@@ -1,0 +1,118 @@
+---
+import { contact, person } from '../data/profile';
+const [user, domain] = contact.email.split('@');
+---
+
+<footer class="contact" id="contato" aria-labelledby="contato-t">
+  <div class="contact__grid">
+    <h2 id="contato-t" class="contact__title">Contato</h2>
+    <p class="contact__lead">
+      Para conversar sobre back-end, arquitetura ou IA aplicada, o caminho mais direto é o e-mail.
+    </p>
+  </div>
+
+  <a class="contact__email" href={`mailto:${contact.email}`}>
+    <span>{user}</span><wbr /><span>@{domain}</span>
+  </a>
+
+  <ul class="contact__links" role="list">
+    <li>
+      <span class="contact__k">LinkedIn</span>
+      <a href={contact.linkedin.href} rel="me">{contact.linkedin.label}</a>
+    </li>
+    <li>
+      <span class="contact__k">GitHub</span>
+      <a href={contact.github.href} rel="me">{contact.github.label}</a>
+    </li>
+  </ul>
+
+  <div class="colophon">
+    <p>Revisão de <time datetime={person.revisionISO}>{person.revision}</time>.</p>
+  </div>
+</footer>
+
+<style>
+  .contact {
+    border-top: 2px solid var(--rule-strong);
+    padding-block: var(--space-xl) var(--space-l);
+  }
+  .contact__grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+    row-gap: var(--space-s);
+  }
+  .contact__title {
+    grid-column: 1 / span 4;
+    font-size: var(--step-3);
+    font-stretch: var(--semi-wide);
+    font-weight: 760;
+    line-height: 1.02;
+  }
+  .contact__lead {
+    grid-column: 5 / -1;
+    max-width: 44ch;
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+  .contact__email {
+    display: block;
+    margin-top: var(--space-xl);
+    font-size: clamp(1.6rem, 0.3rem + 5.6vw, 6.25rem);
+    font-stretch: var(--wide);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    padding-bottom: 0.12em;
+    border-bottom: 6px solid var(--ink);
+  }
+  .contact__email span:last-child {
+    font-weight: 300;
+    font-stretch: var(--narrow);
+  }
+  .contact__email:hover {
+    color: var(--layer-ia);
+    border-bottom-color: var(--layer-ia);
+  }
+  .contact__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-m) var(--gutter);
+    margin-top: var(--space-m);
+  }
+  .contact__links li {
+    display: flex;
+    flex-direction: column;
+  }
+  .contact__k {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .contact__links a {
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs) var(--space-l);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-s);
+    border-top: var(--rule-w) solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  @media (max-width: 59.99rem) {
+    .contact__title,
+    .contact__lead {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 40rem) {
+    .contact__links {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

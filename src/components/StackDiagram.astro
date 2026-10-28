@@ -1,0 +1,289 @@
+---
+/**
+ * Elemento autoral do site: um corte isométrico de três lajes.
+ * Base: back-end (2023). Meio: arquitetura (2025). Topo: IA aplicada (2026).
+ * A linha tracejada é a trajetória documentada atravessando as camadas.
+ */
+import { layers, roles } from '../data/profile';
+
+const cx = 250;
+const w = 210;
+const h = 105;
+const t = 16;
+const ys: Record<string, number> = { ia: 124, arq: 300, back: 476 };
+const order: Record<string, number> = { back: 0, arq: 1, ia: 2 };
+
+const iso = (y: number, u: number, v: number) => [cx + (u - v) * w, y - h + (u + v) * h] as const;
+const pts = (arr: (readonly [number, number])[]) => arr.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' ');
+
+const roleFor: Record<string, (typeof roles)[number]> = {
+  ia: roles.find((r) => r.id === 'tech-lead')!,
+  arq: roles.find((r) => r.id === 'arquitetura')!,
+  back: roles.find((r) => r.id === 'backend')!,
+};
+
+// Posição do nó da trajetória em cada laje (sobe da esquerda para a direita)
+const node: Record<string, [number, number]> = { back: [0.22, 0.78], arq: [0.5, 0.5], ia: [0.78, 0.22] };
+
+const slabs = [...layers].reverse().map((l) => {
+  const y = ys[l.id];
+  const top = pts([iso(y, 0, 0), iso(y, 1, 0), iso(y, 1, 1), iso(y, 0, 1)]);
+  const left = pts([iso(y, 0, 1), iso(y, 1, 1), [cx, y + h + t], [cx - w, y + t]]);
+  const right = pts([iso(y, 1, 1), iso(y, 1, 0), [cx + w, y + t], [cx, y + h + t]]);
+  const [nx, ny] = iso(y, ...node[l.id]);
+  return { ...l, y, top, left, right, nx, ny, role: roleFor[l.id] };
+});
+
+// Glifos por camada: serviços (base), ligações (meio), agentes (topo)
+const grid = [0.28, 0.5, 0.72].flatMap((u) => [0.36, 0.64].map((v) => [u, v] as [number, number]));
+const tiny = (y: number, u: number, v: number, s = 0.055) =>
+  pts([iso(y, u - s, v - s), iso(y, u + s, v - s), iso(y, u + s, v + s), iso(y, u - s, v + s)]);
+const arqEdges: [number, number][] = [
+  [0, 1], [0, 2], [1, 3], [2, 3], [2, 4], [3, 5], [4, 5],
+];
+const agents: [number, number][] = [
+  [0.3, 0.3], [0.3, 0.68], [0.66, 0.3],
+];
+const hub: [number, number] = [0.56, 0.6];
+
+const path = slabs
+  .slice()
+  .reverse()
+  .map((s, i) => `${i ? 'L' : 'M'}${s.nx.toFixed(1)},${s.ny.toFixed(1)}`)
+  .join(' ');
+---
+
+<figure class="stack" aria-labelledby="stack-cap">
+  <svg viewBox="0 0 660 612" role="img" aria-labelledby="stack-title stack-desc" class="stack__svg">
+    <title id="stack-title">Três camadas empilhadas</title>
+    <desc id="stack-desc">
+      Corte isométrico com três lajes: back-end na base, desde abril de 2023; arquitetura de software no meio, desde maio de 2025;
+      IA aplicada no topo, desde abril de 2026. Uma linha tracejada liga um ponto em cada laje, de baixo para cima.
+    </desc>
+
+    {slabs.slice().reverse().map((s) => (
+      <a href={`#papel-${s.role.id}`} class={`stack__slab l-${s.id}`} style={`--i:${order[s.id]}`} data-layers={s.id} aria-label={`${s.name}: ${s.role.title}, ${s.role.start.label} a ${s.role.end.label}`}>
+        <polygon class="face face--left" points={s.left} />
+        <polygon class="face face--right" points={s.right} />
+        <polygon class="face face--top" points={s.top} />
+
+        {s.id === 'back' && grid.map(([u, v]) => <polygon class="glyph glyph--fill" points={tiny(s.y, u, v)} />)}
+
+        {s.id === 'arq' && (
+          <g>
+            {arqEdges.map(([a, b]) => {
+              const [x1, y1] = iso(s.y, ...grid[a]);
+              const [x2, y2] = iso(s.y, ...grid[b]);
+              return <line class="glyph" x1={x1} y1={y1} x2={x2} y2={y2} />;
+            })}
+            {grid.map(([u, v]) => <polygon class="glyph glyph--fill" points={tiny(s.y, u, v, 0.04)} />)}
+          </g>
+        )}
+
+        {s.id === 'ia' && (
+          <g>
+            {agents.map(([u, v]) => {
+              const [x1, y1] = iso(s.y, u, v);
+              const [x2, y2] = iso(s.y, ...hub);
+              return <line class="glyph" x1={x1} y1={y1} x2={x2} y2={y2} />;
+            })}
+            {agents.map(([u, v]) => {
+              const [x, y] = iso(s.y, u, v);
+              return <ellipse class="glyph glyph--fill" cx={x} cy={y} rx="9" ry="4.5" />;
+            })}
+            {(() => {
+              const [x, y] = iso(s.y, ...hub);
+              return <ellipse class="glyph glyph--hub" cx={x} cy={y} rx="14" ry="7" />;
+            })()}
+          </g>
+        )}
+
+        <g class="stack__label" aria-hidden="true">
+          <line class="leader" x1={cx + w + 6} y1={s.y} x2={cx + w + 26} y2={s.y} />
+          <text x={cx + w + 34} y={s.y - 4} class="label-name">{s.short}</text>
+          <text x={cx + w + 34} y={s.y + 18} class="label-meta">desde {s.since}</text>
+        </g>
+      </a>
+    ))}
+
+    <path class="stack__path" d={path} pathLength="1" />
+    {slabs.map((s) => (
+      <circle class={`stack__node l-${s.id}`} style={`--i:${order[s.id]}`} cx={s.nx} cy={s.ny} r="6" />
+    ))}
+  </svg>
+
+  <figcaption id="stack-cap" class="stack__legend">
+    <span class="visually-hidden">Trajetória por camada, do topo para a base:</span>
+    <ol role="list">
+      {slabs.map((s) => (
+        <li class={`l-${s.id}`} data-layers={s.id}>
+          <a href={`#papel-${s.role.id}`}>
+            <span class="slab-mark" aria-hidden="true"></span>
+            <span class="stack__legend-layer">{s.name}</span>
+            <span class="stack__legend-role">{s.role.title}, {s.role.org}</span>
+            <span class="stack__legend-date">{s.role.start.label} – {s.role.end.label}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </figcaption>
+</figure>
+
+<style>
+  .stack {
+    margin: 0;
+  }
+  .stack__svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .stack__slab {
+    outline: none;
+    cursor: pointer;
+  }
+  .face {
+    stroke: var(--c);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .face--top {
+    fill: color-mix(in srgb, var(--c-fill) 16%, var(--paper));
+  }
+  .face--left {
+    fill: color-mix(in srgb, var(--c-fill) 70%, var(--paper));
+  }
+  .face--right {
+    fill: color-mix(in srgb, var(--c-fill) 48%, var(--paper));
+  }
+  .glyph {
+    stroke: var(--c);
+    stroke-width: 1.25;
+    fill: none;
+  }
+  .glyph--fill {
+    fill: var(--c-fill);
+  }
+  .glyph--hub {
+    fill: var(--paper);
+    stroke-width: 2;
+  }
+  .leader {
+    stroke: var(--c);
+    stroke-width: 1.5;
+  }
+  .label-name {
+    font-family: var(--font-sans);
+    font-size: 26px;
+    font-weight: 760;
+    font-stretch: 112%;
+    fill: var(--c);
+  }
+  .label-meta {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    fill: var(--ink-soft);
+  }
+  .stack__path {
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-dasharray: 0.018 0.012;
+  }
+  .stack__node {
+    fill: var(--paper);
+    stroke: var(--ink);
+    stroke-width: 2.5;
+  }
+
+  .stack__slab:hover .face--top,
+  .stack__slab:focus-visible .face--top {
+    fill: color-mix(in srgb, var(--c-fill) 34%, var(--paper));
+  }
+  .stack__slab:focus-visible .face--top {
+    stroke: var(--focus);
+    stroke-width: 3;
+  }
+
+  /* Legenda em HTML: em telas largas, só para leitores de tela */
+  .stack__legend ol {
+    display: grid;
+    gap: 0;
+    border-top: var(--rule-w) solid var(--rule);
+  }
+  .stack__legend li {
+    border-bottom: var(--rule-w) solid var(--rule);
+  }
+  .stack__legend a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    column-gap: var(--space-xs);
+    align-items: baseline;
+    padding-block: var(--space-xs);
+    text-decoration: none;
+  }
+  .stack__legend-layer {
+    font-weight: 700;
+    color: var(--c);
+  }
+  .stack__legend-role {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .stack__legend-date {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    grid-row: 1;
+    grid-column: 3;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .stack__legend {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+  }
+  @media (max-width: 47.99rem) {
+    .stack__label {
+      display: none;
+    }
+    .stack__svg {
+      max-width: 26rem;
+      margin-inline: auto;
+      margin-bottom: var(--space-m);
+    }
+  }
+
+  /* Único momento coreografado: as lajes são assentadas de baixo para cima */
+  @media (prefers-reduced-motion: no-preference) {
+    .stack__slab {
+      animation: settle 700ms var(--ease) both;
+      animation-delay: calc(var(--i) * 160ms + 150ms);
+    }
+    .stack__node {
+      animation: appear 300ms var(--ease) both;
+      animation-delay: calc(var(--i) * 160ms + 650ms);
+    }
+    .stack__path {
+      animation: appear 600ms var(--ease) both;
+      animation-delay: 900ms;
+    }
+  }
+  @keyframes settle {
+    from {
+      opacity: 0;
+      transform: translateY(-28px);
+    }
+  }
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

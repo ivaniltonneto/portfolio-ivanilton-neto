@@ -1,0 +1,223 @@
+---
+import { roles, layers, cases } from '../data/profile';
+
+const caseTitle = Object.fromEntries(cases.map((c) => [c.id, c.title]));
+
+const layerName = Object.fromEntries(layers.map((l) => [l.id, l.short]));
+
+function months(startIso: string, endIso: string) {
+  const [sy, sm] = startIso.split('-').map(Number);
+  const [ey, em] = endIso.split('-').map(Number);
+  const total = (ey - sy) * 12 + (em - sm) + 1;
+  const y = Math.floor(total / 12);
+  const m = total % 12;
+  const parts = [];
+  if (y) parts.push(`${y} ${y > 1 ? 'anos' : 'ano'}`);
+  if (m) parts.push(`${m} ${m > 1 ? 'meses' : 'mês'}`);
+  return parts.join(' e ');
+}
+---
+
+<section class="section" id="trajetoria" aria-labelledby="trajetoria-t">
+  <header class="section__head">
+    <h2 id="trajetoria-t" class="section__title">Trajetória</h2>
+    <p class="section__standfirst">
+      Cada etapa somou uma camada à anterior. Em 2026, a liderança técnica na Family UK e o trabalho no LogixSphere correram em paralelo.
+    </p>
+  </header>
+
+  <ol class="section__body roles" role="list">
+    {roles.map((r) => (
+      <li class={`role l-${r.layers[0]}`} id={`papel-${r.id}`} data-layers={r.layers.join(' ')}>
+        <div class="role__when">
+          <p class="role__dates">
+            <time datetime={r.start.iso}>{r.start.label}</time>
+            <span aria-hidden="true"> – </span>
+            <span class="visually-hidden"> a </span>
+            {r.end.current ? <span>{r.end.label}</span> : <time datetime={r.end.iso}>{r.end.label}</time>}
+          </p>
+          <p class="role__span">{months(r.start.iso, r.end.iso)}{r.end.current ? ' até agora' : ''}</p>
+        </div>
+
+        <div class="role__main">
+          <h3 class="role__title">{r.title}</h3>
+          <p class="role__org">
+            <strong>{r.org}</strong>
+            {r.orgNote && <span>{r.orgNote}</span>}
+            {r.mode && <span>{r.mode}</span>}
+          </p>
+          <p class="role__context">{r.context}</p>
+
+          <h4 class="role__sub">Responsabilidades documentadas</h4>
+          <ul class="role__duties">
+            {r.duties.map((d) => <li>{d}</li>)}
+          </ul>
+
+          <div class="role__foot">
+            <p class="role__layers">
+              <span class="visually-hidden">Camadas:</span>
+              {r.layers.map((id, i) => (
+                <span class={`role__layer l-${id}`}>
+                  <span class={`slab-mark ${i ? 'slab-mark--outline' : ''}`} aria-hidden="true"></span>
+                  {layerName[id]}{i === 0 && <span class="visually-hidden"> (principal)</span>}
+                </span>
+              ))}
+            </p>
+            {r.tech.length > 0 && (
+              <p class="role__tech">
+                <span class="visually-hidden">Tecnologias citadas:</span>
+                {r.tech.map((t) => <code>{t}</code>)}
+              </p>
+            )}
+            {r.caseIds && (
+              <p class="role__cases">
+                <span class="role__cases-k">{r.caseIds.length > 1 ? 'Estudos de caso' : 'Estudo de caso'}</span>
+                {r.caseIds.map((id) => <a href={`#caso-${id}`}>{caseTitle[id]}</a>)}
+              </p>
+            )}
+          </div>
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .roles {
+    display: grid;
+    gap: 0;
+    padding: 0;
+  }
+  .role {
+    display: grid;
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: var(--space-m);
+    padding-block: var(--space-l);
+    border-top: var(--rule-w) solid var(--rule);
+    position: relative;
+  }
+  .role:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .role::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: var(--space-l);
+    width: 3.25rem;
+    height: 6px;
+    background: var(--c-fill);
+    transform: skewX(-28deg);
+    transform-origin: left;
+  }
+  .role:first-child::before {
+    top: 0;
+  }
+  .role__when {
+    padding-top: 1.1rem;
+  }
+  .role__dates {
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+  }
+  .role__span {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+  }
+  .role__title {
+    font-size: var(--step-2);
+    font-stretch: var(--semi-wide);
+    font-weight: 720;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+  .role__org {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-s);
+    margin-top: var(--space-2xs);
+    color: var(--ink-soft);
+  }
+  .role__org strong {
+    color: var(--c);
+    font-weight: 700;
+  }
+  .role__context {
+    margin-top: var(--space-s);
+    max-width: var(--measure);
+  }
+  .role__sub {
+    margin-top: var(--space-m);
+    font-size: var(--step--1);
+    font-weight: 650;
+    color: var(--ink-soft);
+  }
+  .role__duties {
+    margin-top: var(--space-2xs);
+    padding-inline-start: 1.1em;
+    max-width: var(--measure);
+  }
+  .role__duties li {
+    padding-inline-start: 0.25em;
+  }
+  .role__duties li + li {
+    margin-top: 0.3em;
+  }
+  .role__duties li::marker {
+    content: '–';
+    color: var(--c);
+  }
+  .role__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs) var(--space-m);
+    margin-top: var(--space-m);
+    font-size: var(--step--1);
+  }
+  .role__layers {
+    display: flex;
+    gap: var(--space-s);
+  }
+  .role__layer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: var(--c);
+    font-weight: 600;
+  }
+  .role__tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .role__tech code {
+    padding: 0.1em 0.45em;
+    border: var(--rule-w) solid var(--rule);
+    background: var(--paper-sunk);
+  }
+  .role__cases {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem var(--space-m);
+    padding-top: var(--space-xs);
+    border-top: 1px dashed var(--rule);
+  }
+  .role__cases-k {
+    color: var(--ink-soft);
+  }
+  .role__cases a {
+    font-weight: 650;
+  }
+
+  @media (max-width: 40rem) {
+    .role {
+      grid-template-columns: 1fr;
+      gap: var(--space-2xs);
+    }
+  }
+</style>

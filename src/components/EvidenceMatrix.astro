@@ -1,0 +1,223 @@
+---
+import { skillGroups, sources } from '../data/profile';
+---
+
+<section class="section" id="competencias" aria-labelledby="competencias-t">
+  <header class="section__head">
+    <h2 id="competencias-t" class="section__title">Competências</h2>
+    <p class="section__standfirst">
+      Sem notas nem barras. Cada linha mostra onde a competência aparece: exercida num trabalho ou estudada.
+    </p>
+    <dl class="key">
+      <div><dt><span class="mk mk--on" aria-hidden="true"></span></dt><dd>Exercida no trabalho</dd></div>
+      <div><dt><span class="mk mk--off" aria-hidden="true"></span></dt><dd>Estudada em cursos ou na graduação</dd></div>
+    </dl>
+  </header>
+
+  <div class="section__body">
+    <table class="matrix">
+      <caption class="visually-hidden">Competências por fonte de evidência</caption>
+      <colgroup>
+        <col class="matrix__c-name" />
+        {sources.map(() => <col />)}
+      </colgroup>
+      <thead>
+        <tr>
+          <th scope="col"><span class="visually-hidden">Competência</span></th>
+          {sources.map((s) => (
+            <th scope="col" class={`matrix__src matrix__src--${s.kind}`}>
+              <span>{s.name}</span>
+              <span class="matrix__src-note">{s.note}</span>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      {skillGroups.map((g) => (
+        <tbody>
+          <tr class="matrix__group">
+            <th scope="colgroup" colspan={sources.length + 1}>{g.name}</th>
+          </tr>
+          {g.skills.map((sk) => {
+            const exercised = sources.some((s) => s.kind === 'exercised' && sk.in.includes(s.id));
+            return (
+              <tr class={`matrix__row l-${sk.layer} ${exercised ? '' : 'is-declared'}`} data-layers={sk.layer}>
+                <th scope="row">
+                  <span class="matrix__name">
+                    <span class="slab-mark" aria-hidden="true"></span>
+                    {sk.name}
+                  </span>
+                </th>
+                {sources.map((s) => {
+                  const has = sk.in.includes(s.id);
+                  return (
+                    <td data-src={s.name} class={has ? 'has' : 'no'}>
+                      {has ? (
+                        <>
+                          <span class={`mk ${s.kind === 'exercised' ? 'mk--on' : 'mk--off'}`} aria-hidden="true"></span>
+                          <span class="visually-hidden">{s.kind === 'exercised' ? 'Exercida' : 'Sim'}</span>
+                          <span class="matrix__m-label" aria-hidden="true">{s.name}</span>
+                        </>
+                      ) : (
+                        <span class="visually-hidden">Não</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      ))}
+    </table>
+  </div>
+</section>
+
+<style>
+  .key {
+    margin-top: var(--space-m);
+    display: grid;
+    gap: var(--space-2xs);
+    font-size: var(--step--1);
+  }
+  .key div {
+    display: flex;
+    gap: var(--space-xs);
+    align-items: center;
+  }
+  .mk {
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+  .mk--on {
+    background: var(--ink);
+  }
+
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+  }
+  .matrix__c-name {
+    width: 34%;
+  }
+  .matrix thead th {
+    position: sticky;
+    top: 3.5rem;
+    z-index: 2;
+    background: var(--paper);
+    vertical-align: bottom;
+    text-align: center;
+    font-weight: 650;
+    line-height: 1.2;
+    padding: var(--space-xs) 0.35rem;
+    border-bottom: 2px solid var(--rule-strong);
+  }
+  .matrix__src span {
+    display: block;
+  }
+  .matrix__src-note {
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .matrix__src--studied {
+    color: var(--ink-soft);
+  }
+  .matrix__group th {
+    text-align: left;
+    padding: var(--space-m) 0 var(--space-2xs);
+    font-size: var(--step-0);
+    font-weight: 750;
+    font-stretch: var(--semi-wide);
+    border-bottom: var(--rule-w) solid var(--rule-strong);
+  }
+  .matrix__row th {
+    text-align: left;
+    font-weight: 600;
+    padding: 0.5rem 0.5rem 0.5rem 0;
+  }
+  .matrix__name {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+  }
+  .matrix__row.is-declared th {
+    font-weight: 400;
+    color: var(--ink-soft);
+  }
+  .matrix__row td {
+    text-align: center;
+    padding: 0.5rem 0.35rem;
+  }
+  .matrix__row td,
+  .matrix__row th {
+    border-bottom: var(--rule-w) solid var(--rule);
+  }
+  .matrix__row:hover {
+    background: var(--paper-sunk);
+  }
+  .matrix__m-label {
+    display: none;
+  }
+  /* Separa as colunas de exercício das de declaração */
+  .matrix td:nth-child(6),
+  .matrix th:nth-child(6) {
+    border-inline-start: 1px dashed var(--rule-strong);
+  }
+
+  @media (max-width: 47.99rem) {
+    .matrix,
+    .matrix tbody {
+      display: block;
+    }
+    .matrix thead {
+      display: none;
+    }
+    .matrix__group,
+    .matrix__group th {
+      display: block;
+    }
+    .matrix__row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.4rem;
+      padding-block: 0.6rem;
+      border-bottom: var(--rule-w) solid var(--rule);
+    }
+    .matrix__row th {
+      flex: 1 0 100%;
+      padding: 0;
+      border: 0;
+    }
+    .matrix__row td {
+      border: 0;
+      padding: 0;
+    }
+    .matrix__row td.no {
+      display: none;
+    }
+    .matrix__row td.has {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.05rem 0.45rem;
+      border: var(--rule-w) solid var(--rule);
+      font-size: 0.8125rem;
+    }
+    .matrix td:nth-child(6) {
+      border-inline-start: var(--rule-w) solid var(--rule);
+    }
+    .matrix__m-label {
+      display: inline;
+    }
+    .mk {
+      width: 0.6rem;
+      height: 0.6rem;
+      border-width: 1.5px;
+    }
+  }
+</style>
