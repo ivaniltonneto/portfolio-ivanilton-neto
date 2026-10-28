@@ -564,8 +564,8 @@ export const skillGroups: SkillGroup[] = [
       { name: 'PostgreSQL', layer: 'back', in: ['ls', 'be', 'estudo'] },
       { name: 'SQL Server e stored procedures', layer: 'back', in: ['be'] },
       { name: 'Redis', layer: 'back', in: ['ls'] },
-      { name: 'NoSQL', layer: 'back', in: ['estudo'] },
-      { name: 'Programação orientada a objetos', layer: 'back', in: ['estudo'] },
+      { name: 'NoSQL', layer: 'back', in: ['tl', 'arq', 'be', 'estudo'] },
+      { name: 'Programação orientada a objetos', layer: 'back', in: ['ls', 'arq', 'be', 'estudo'] },
     ],
   },
   {
@@ -583,12 +583,12 @@ export const skillGroups: SkillGroup[] = [
   {
     name: 'Inteligência artificial e dados',
     skills: [
-      { name: 'IA generativa', layer: 'ia', in: ['tl', 'estudo'] },
-      { name: 'RAG', layer: 'ia', in: ['tl', 'estudo'] },
+      { name: 'IA generativa', layer: 'ia', in: ['ls', 'tl', 'estudo'] },
+      { name: 'RAG', layer: 'ia', in: ['ls', 'tl', 'estudo'] },
       { name: 'Bancos de dados vetoriais', layer: 'ia', in: ['tl', 'estudo'] },
       { name: 'Pipelines de processamento de dados', layer: 'ia', in: ['tl'] },
       { name: 'Privacidade, GDPR e LGPD', layer: 'ia', in: ['tl', 'ls', 'estudo'] },
-      { name: 'Auditoria imutável', layer: 'ia', in: ['tl'] },
+      { name: 'Auditoria imutável', layer: 'ia', in: ['ls', 'tl'] },
       { name: 'Ciência de dados', layer: 'ia', in: ['estudo'] },
     ],
   },
@@ -597,9 +597,11 @@ export const skillGroups: SkillGroup[] = [
     skills: [
       { name: 'CI/CD com GitHub Actions', layer: 'back', in: ['ls', 'estudo'] },
       { name: 'PM2 e deploy em VM', layer: 'back', in: ['ls', 'be'] },
-      { name: 'Docker', layer: 'back', in: ['be', 'estudo'] },
+      { name: 'Docker', layer: 'back', in: ['ls', 'tl', 'arq', 'be', 'estudo'] },
       { name: 'Kubernetes', layer: 'back', in: ['be', 'estudo'] },
-      { name: 'AWS', layer: 'back', in: ['estudo'] },
+      { name: 'AWS', layer: 'back', in: ['arq', 'be', 'estudo'] },
+      { name: 'DigitalOcean', layer: 'back', in: ['ls'] },
+      { name: 'Railway', layer: 'back', in: ['tl'] },
     ],
   },
   {
@@ -607,15 +609,15 @@ export const skillGroups: SkillGroup[] = [
     skills: [
       { name: 'React', layer: 'back', in: ['ls', 'be', 'estudo'] },
       { name: 'Next.js', layer: 'back', in: ['ls', 'be', 'estudo'] },
-      { name: 'HTML e CSS', layer: 'back', in: ['estudo'] },
+      { name: 'HTML e CSS', layer: 'back', in: ['arq', 'be', 'estudo'] },
     ],
   },
   {
     name: 'Liderança e colaboração',
     skills: [
-      { name: 'Liderança técnica', layer: 'arq', in: ['tl'] },
-      { name: 'Revisão de código', layer: 'arq', in: ['ls'] },
-      { name: 'Colaboração com equipes multidisciplinares', layer: 'arq', in: ['arq'] },
+      { name: 'Liderança técnica', layer: 'arq', in: ['ls', 'tl'] },
+      { name: 'Revisão de código', layer: 'arq', in: ['ls', 'tl', 'arq'] },
+      { name: 'Colaboração com equipes multidisciplinares', layer: 'arq', in: ['ls', 'arq'] },
     ],
   },
 ];

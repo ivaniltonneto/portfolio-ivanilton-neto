@@ -25,7 +25,7 @@ O build gera HTML estático em `dist/`. Qualquer hospedagem estática serve.
 
 1. Defina o domínio final em `SITE_URL` (canonical, Open Graph e sitemap dependem dele):
    `SITE_URL=https://seu-dominio.dev npm run build`.
-   Sem a variável, o padrão é `https://ivaniltonneto.github.io`.
+   Sem a variável, o padrão é `https://portfolio-ivanilton-neto.vercel.app`.
 2. Atualize a linha `Sitemap:` em `public/robots.txt` com o mesmo domínio.
 3. Opções:
    - **Vercel / Netlify / Cloudflare Pages:** importe o repositório. Build `npm run build`, saída `dist`, variável `SITE_URL`.
