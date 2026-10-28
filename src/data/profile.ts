@@ -64,6 +64,7 @@ export const contact = {
     href: 'https://www.linkedin.com/in/ivanilton-neto-a712a379',
   },
   github: { label: 'github.com/ivaniltonneto', href: 'https://github.com/ivaniltonneto' },
+  whatsapp: { label: '+55 88 92176-9346', href: 'https://wa.me/5588921769346' },
 };
 
 /* ------------------------------------------------------------------ */

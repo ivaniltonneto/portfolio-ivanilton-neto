@@ -1,0 +1,21 @@
+---
+/**
+ * Ícones de contato. Desenhos do Font Awesome Free (CC BY 4.0, https://fontawesome.com/license/free),
+ * importados do pacote oficial no build: nenhum JavaScript vai para o navegador.
+ */
+import { faGithub, faLinkedin, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
+import { faEnvelope } from '@fortawesome/free-regular-svg-icons';
+
+const icons = { github: faGithub, linkedin: faLinkedin, whatsapp: faWhatsapp, email: faEnvelope };
+
+interface Props {
+  name: keyof typeof icons;
+  class?: string;
+}
+const { name, class: cls } = Astro.props;
+const [w, h, , , path] = icons[name].icon;
+---
+
+<svg class={cls} viewBox={`0 0 ${w} ${h}`} width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false">
+  <path d={Array.isArray(path) ? path.join(' ') : path} />
+</svg>

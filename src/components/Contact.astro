@@ -1,4 +1,5 @@
 ---
+import Icon from './Icon.astro';
 import { contact, person } from '../data/profile';
 const [user, domain] = contact.email.split('@');
 ---
@@ -15,15 +16,10 @@ const [user, domain] = contact.email.split('@');
     <span>{user}</span><wbr /><span>@{domain}</span>
   </a>
 
-  <ul class="contact__links" role="list">
-    <li>
-      <span class="contact__k">LinkedIn</span>
-      <a href={contact.linkedin.href} rel="me">{contact.linkedin.label}</a>
-    </li>
-    <li>
-      <span class="contact__k">GitHub</span>
-      <a href={contact.github.href} rel="me">{contact.github.label}</a>
-    </li>
+  <ul class="contact__links" role="list" aria-label="Outros contatos">
+    <li><a href={contact.whatsapp.href} aria-label={`WhatsApp ${contact.whatsapp.label}`} title={`WhatsApp ${contact.whatsapp.label}`} rel="noopener"><Icon name="whatsapp" /></a></li>
+    <li><a href={contact.linkedin.href} aria-label="LinkedIn" title="LinkedIn" rel="me noopener"><Icon name="linkedin" /></a></li>
+    <li><a href={contact.github.href} aria-label="GitHub" title="GitHub" rel="me noopener"><Icon name="github" /></a></li>
   </ul>
 
   <div class="colophon">
@@ -77,22 +73,22 @@ const [user, domain] = contact.email.split('@');
     border-bottom-color: var(--layer-ia);
   }
   .contact__links {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-m) var(--gutter);
-    margin-top: var(--space-m);
-  }
-  .contact__links li {
     display: flex;
-    flex-direction: column;
-  }
-  .contact__k {
-    font-size: var(--step--1);
-    color: var(--ink-soft);
+    gap: var(--space-2xs);
+    margin-top: var(--space-m);
+    margin-inline-start: -0.6rem;
   }
   .contact__links a {
-    font-weight: 650;
-    overflow-wrap: anywhere;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.75rem;
+    color: var(--ink);
+    transition: color 160ms var(--ease);
+  }
+  .contact__links a:hover {
+    color: var(--layer-ia);
   }
   .colophon {
     display: flex;
@@ -103,16 +99,13 @@ const [user, domain] = contact.email.split('@');
     border-top: var(--rule-w) solid var(--rule);
     font-size: var(--step--1);
     color: var(--ink-soft);
+    justify-content: center;
+    text-align: center;
   }
   @media (max-width: 59.99rem) {
     .contact__title,
     .contact__lead {
       grid-column: 1 / -1;
-    }
-  }
-  @media (max-width: 40rem) {
-    .contact__links {
-      grid-template-columns: 1fr;
     }
   }
 </style>

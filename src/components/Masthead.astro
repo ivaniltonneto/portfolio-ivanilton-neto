@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import StackDiagram from './StackDiagram.astro';
+import Icon from './Icon.astro';
 import photo from '../assets/ivanilton-neto.jpg';
 import { person, contact, languages } from '../data/profile';
 ---
@@ -16,10 +17,11 @@ import { person, contact, languages } from '../data/profile';
       <p class="masthead__role">{person.role}</p>
       <p class="masthead__lede">{person.lede}</p>
 
-      <ul class="masthead__links" role="list">
-        <li><a href={`mailto:${contact.email}`}>Enviar e-mail</a></li>
-        <li><a href={contact.linkedin.href} rel="me">LinkedIn</a></li>
-        <li><a href={contact.github.href} rel="me">GitHub</a></li>
+      <ul class="masthead__links" role="list" aria-label="Contato">
+        <li><a href={`mailto:${contact.email}`} aria-label="E-mail" title={contact.email}><Icon name="email" /></a></li>
+        <li><a href={contact.whatsapp.href} aria-label="WhatsApp" title={`WhatsApp ${contact.whatsapp.label}`} rel="noopener"><Icon name="whatsapp" /></a></li>
+        <li><a href={contact.linkedin.href} aria-label="LinkedIn" title="LinkedIn" rel="me noopener"><Icon name="linkedin" /></a></li>
+        <li><a href={contact.github.href} aria-label="GitHub" title="GitHub" rel="me noopener"><Icon name="github" /></a></li>
       </ul>
 
       <div class="titleblock">
@@ -28,7 +30,7 @@ import { person, contact, languages } from '../data/profile';
         </figure>
         <dl class="titleblock__meta">
           <div>
-            <dt>Base</dt>
+            <dt>Mora em</dt>
             <dd>{person.location}</dd>
           </div>
           <div>
@@ -101,12 +103,21 @@ import { person, contact, languages } from '../data/profile';
   .masthead__links {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs) var(--space-m);
+    gap: var(--space-2xs);
     margin-top: var(--space-m);
-    font-weight: 650;
+    margin-inline-start: -0.6rem;
   }
   .masthead__links a {
-    text-decoration-thickness: 2px;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.5rem;
+    color: var(--ink);
+    transition: color 160ms var(--ease);
+  }
+  .masthead__links a:hover {
+    color: var(--layer-ia);
   }
   /* Carimbo: o bloco de identificação de um desenho técnico */
   .titleblock {
